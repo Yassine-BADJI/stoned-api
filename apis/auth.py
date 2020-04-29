@@ -24,8 +24,8 @@ user_create_model = api.model('User', {
     'password': fields.String(required=True, description='The user name'),
 })
 
-current_user = api.parser()
-current_user.add_argument('x-access-token', location='headers', required=True)
+token_parser = api.parser()
+token_parser.add_argument('x-access-token', location='headers', required=True)
 
 
 def token_required(f):
@@ -42,7 +42,6 @@ def token_required(f):
         except InvalidTokenError:
             return ({'message': 'Token is invalid!'}), 401
         return f(current_user, *args, **kwargs)
-
     return decorated
 
 
@@ -66,10 +65,10 @@ class UsersLogin(Resource):
 @api.route('/users/')
 class Users(Resource):
     @api.doc('list_of_users')
-    @api.expect(current_user)
+    @api.expect(token_parser)
     @token_required
-    def get(self, current_user):
-        # if not current_user.admin:
+    def get(self, token_parser):
+        # if not token_parser.current_user.admin:
         #     return {'message': 'Vous n\' avez pas les permissions!'}
         users = User.query.all()
         output = []
@@ -81,8 +80,7 @@ class Users(Resource):
         return {'users': output}
 
     @api.doc('create_user')
-    @api.expect(user_create_model, current_user)
-    @token_required
+    @api.expect(user_create_model)
     def post(self):
         # if not current_user.admin:
         #     return {'message': 'Vous n\' avez pas les permissions!'}
@@ -97,9 +95,9 @@ class Users(Resource):
 @api.route('/users/<id>')
 class UsersID(Resource):
     @api.doc('promote_user')
-    @api.expect(current_user)
+    @api.expect(token_parser)
     @token_required
-    def put(self, current_user, id):
+    def put(self, token_parser, id):
         # if not current_user.admin:
         #     return {'message': 'Vous n\' avez pas les permissions!'}
         user = User.query.filter_by(id=id).first()
@@ -110,9 +108,9 @@ class UsersID(Resource):
         return {'message': 'The user has been promoted!'}
 
     @api.doc('delete_user')
-    @api.expect(current_user)
+    @api.expect(token_parser)
     @token_required
-    def delete(self, current_user, id):
+    def delete(self, token_parser, id):
         # if not current_user.admin:
         #     return {'message': 'Vous n\' avez pas les permissions!'}
         user = User.query.filter_by(id=id).first()
