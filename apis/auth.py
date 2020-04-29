@@ -37,7 +37,7 @@ def token_required(f):
         if not token:
             return ({'message': 'Token is missing!'}), 401
         try:
-            data = jwt.decode(token, 'thisissecret')
+            data = jwt.decode(token, key)
             current_user = User.query.filter_by(id=data['id']).first()
         except InvalidTokenError:
             return ({'message': 'Token is invalid!'}), 401

@@ -6,7 +6,7 @@ from flask_script import Manager
 from model import User
 from app import create_app, db
 
-app = create_app(os.getenv('BOILERPLATE_ENV') or 'dev')
+app = create_app(os.getenv('ENV_STATUS') or 'prod')
 app.app_context().push()
 
 manager = Manager(app)

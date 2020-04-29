@@ -21,3 +21,4 @@ flask-restplus==0.12.1
 flask_sqlalchemy
 flask_migrate
 flask_script
+psycopg2
