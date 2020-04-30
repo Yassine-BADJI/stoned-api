@@ -9,14 +9,12 @@ class Config:
 
 
 class DevelopmentConfig(Config):
-    SECRET_KEY = 'thisissecretkeytest'
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'stoned_database.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
 class ProductionConfig(Config):
-    # PORT = os.getenv('PORT_ENV')
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = 'postgres://wdbjcwvtwqrepa' \
                               ':cee8af49d68c54942189e2d9688e7fa5f2d2b6d00f9dd0e8d4bd90febacf4b24@ec2-54-228-250-82.eu' \
