@@ -3,10 +3,10 @@ import unittest
 
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
-from model import User
+from model import User, Types, Drugs
 from app import create_app, db
 
-app = create_app(os.getenv('ENV_STATUS') or 'prod')
+app = create_app(os.getenv('ENV_STATUS') or 'dev')
 app.app_context().push()
 
 manager = Manager(app)
