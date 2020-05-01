@@ -1,14 +1,13 @@
 import datetime
-from functools import wraps
 
 import jwt
 from flask import request, make_response
 from flask_restplus import Namespace, fields, Resource
-from jwt import InvalidTokenError
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from model import User, db
+from apis.comun import token_required
 from config import key
+from model import User, db
 
 api = Namespace('auth', description='User login authenfication')
 
@@ -22,23 +21,6 @@ user_create_input = api.model('User', {
 
 token_parser = api.parser()
 token_parser.add_argument('x-access-token', location='headers', required=True)
-
-
-def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = None
-        if 'x-access-token' in request.headers:
-            token = request.headers['x-access-token']
-        if not token:
-            return ({'message': 'Token is missing!'}), 401
-        try:
-            data = jwt.decode(token, key)
-            current_user = User.query.filter_by(id=data['id']).first()
-        except InvalidTokenError:
-            return ({'message': 'Token is invalid!'}), 401
-        return f(current_user, *args, **kwargs)
-    return decorated
 
 
 @api.route('/users/login')
