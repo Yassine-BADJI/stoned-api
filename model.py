@@ -14,6 +14,7 @@ class User(db.Model):
     last_name = db.Column(db.String(50))
     age = db.Column(db.String(50))
     admin = db.Column(db.Boolean, default=False)
+    takes = db.relationship('Takes', backref='user')
 
 
 class Types(db.Model):
@@ -41,3 +42,19 @@ class Drugs(db.Model):
     addiction = db.Column(db.Text())
     risk_reduction_tips = db.Column(db.Text())
     type_id = db.Column(db.Integer, ForeignKey("Types.id"), nullable=False)
+    takes = db.relationship('Takes', backref='drugs')
+
+
+class Takes(db.Model):
+    """ Takes Model for storing take related details """
+    __tablename__ = "Takes"
+
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.String(50))
+    quantity = db.Column(db.String(50))
+    unit = db.Column(db.String(50))
+    adress = db.Column(db.String(150))
+    latitude = db.Column(db.String(150))
+    longitude = db.Column(db.String(150))
+    drug_id = db.Column(db.Integer, ForeignKey("Drugs.id"), nullable=False)
+    user_id = db.Column(db.Integer, ForeignKey("User.id"), nullable=False)
