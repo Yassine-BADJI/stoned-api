@@ -18,7 +18,8 @@ class DrugsDisplay(Resource):
         drug = Drugs.query.filter_by(id=id).first()
         if not drug:
             return {'message': 'No drug found!'}
-        drug_data = {'name': drug.name,
+        drug_data = {'id': drug.id,
+                     'name': drug.name,
                      'summary': drug.summary,
                      'legal_status': drug.legal_status,
                      'drug_testing': drug.drug_testing,
@@ -42,7 +43,8 @@ class TypesById(Resource):
         output = []
         for drug in drugs:
             type = Types.query.filter_by(id=drug.type_id).first()
-            drug_data = {'name': drug.name,
+            drug_data = {'id': drug.id,
+                         'name': drug.name,
                          'summary': drug.summary,
                          'legal_status': drug.legal_status,
                          'drug_testing': drug.drug_testing,
@@ -70,7 +72,8 @@ class TypesAll(Resource):
             drugs = Drugs.query.filter_by(type_id=type.id).all()
             output_drugs = []
             for drug in drugs:
-                drug_data = {'name': drug.name,
+                drug_data = {'id': drug.id,
+                             'name': drug.name,
                              'summary': drug.summary,
                              'legal_status': drug.legal_status,
                              'drug_testing': drug.drug_testing,
