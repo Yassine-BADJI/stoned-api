@@ -53,7 +53,8 @@ class Users(Resource):
         users = User.query.all()
         output = []
         for user in users:
-            user_data = {'first_name': user.first_name,
+            user_data = {'user_id': user.id,
+                         'first_name': user.first_name,
                          'last_name': user.last_name,
                          'email': user.email,
                          'age': user.age,
@@ -80,6 +81,23 @@ class Users(Resource):
 
 @api.route('/<id>')
 class UsersID(Resource):
+    @api.doc('return_one_user')
+    @api.expect(token_parser)
+    @token_required
+    def get(self, token_parser, id):
+        # if not token_parser.current_user.admin:
+        #     return {'message': 'You are not allowed to use this method!'}
+        user = User.query.filter_by(id=id).first()
+        if not user:
+            return {'message': 'No user found!'}
+        user_data = {'user_id': user.id,
+                     'first_name': user.first_name,
+                     'last_name': user.last_name,
+                     'email': user.email,
+                     'age': user.age,
+                     'admin': user.admin}
+        return {'user': user_data}
+
     @api.doc('promote_user')
     @api.expect(token_parser)
     @token_required
