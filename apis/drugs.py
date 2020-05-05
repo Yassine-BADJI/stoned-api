@@ -9,9 +9,35 @@ token_parser = api.parser()
 token_parser.add_argument('x-access-token', location='headers', required=True)
 
 
+@api.route('/')
+class DrugsAll(Resource):
+    @api.doc('list_all_drugs')
+    @api.expect(token_parser)
+    @token_required
+    def get(self, token_parser):
+        drugs = Drugs.query.all()
+        output = []
+        for drug in drugs:
+            drug_data = {'id': drug.id,
+                         'name': drug.name,
+                         'summary': drug.summary,
+                         'legal_status': drug.legal_status,
+                         'drug_testing': drug.drug_testing,
+                         'way_consuming': drug.way_consuming,
+                         'desired_effect': drug.desired_effect,
+                         'secondary_effect': drug.secondary_effect,
+                         'risks_complications': drug.risks_complications,
+                         'addiction': drug.addiction,
+                         'risk_reduction_tips': drug.risk_reduction_tips,
+                         'img': drug.img,
+                         'type_id': drug.type_id}
+            output.append(drug_data)
+        return {'drug': output}
+
+
 @api.route('/<id>')
 class DrugsDisplay(Resource):
-    @api.doc('list_of_drugs_by_id')
+    @api.doc('get_drugs_by_id')
     @api.expect(token_parser)
     @token_required
     def get(self, token_parser, id):
@@ -64,7 +90,7 @@ class TypesById(Resource):
 
 @api.route('/types/')
 class TypesAll(Resource):
-    @api.doc('list_drugs_by_types')
+    @api.doc('list_all_drugs_order_by_type')
     @api.expect(token_parser)
     @token_required
     def get(self, token_parser):
