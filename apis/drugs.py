@@ -29,6 +29,7 @@ class DrugsDisplay(Resource):
                      'risks_complications': drug.risks_complications,
                      'addiction': drug.addiction,
                      'risk_reduction_tips': drug.risk_reduction_tips,
+                     'img': drug.img,
                      'type_id': drug.type_id}
         return {'drug': drug_data}
 
@@ -54,6 +55,7 @@ class TypesById(Resource):
                          'risks_complications': drug.risks_complications,
                          'addiction': drug.addiction,
                          'risk_reduction_tips': drug.risk_reduction_tips,
+                         'img': drug.img,
                          'type_id': drug.type_id,
                          'type_name': type.name}
             output.append(drug_data)
@@ -83,6 +85,7 @@ class TypesAll(Resource):
                              'risks_complications': drug.risks_complications,
                              'addiction': drug.addiction,
                              'risk_reduction_tips': drug.risk_reduction_tips,
+                             'img': drug.img,
                              'type_id': drug.type_id,
                              'type_name': type.name}
                 output_drugs.append(drug_data)

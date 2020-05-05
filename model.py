@@ -41,6 +41,7 @@ class Drugs(db.Model):
     risks_complications = db.Column(db.Text())
     addiction = db.Column(db.Text())
     risk_reduction_tips = db.Column(db.Text())
+    img = db.Column(db.Text())
     type_id = db.Column(db.Integer, ForeignKey("Types.id"), nullable=False)
     takes = db.relationship('Takes', backref='drugs')
 
