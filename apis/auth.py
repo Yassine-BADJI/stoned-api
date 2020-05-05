@@ -9,7 +9,7 @@ from apis.comun import token_required
 from config import key
 from model import User, db
 
-api = Namespace('auth', description='User login authenfication')
+api = Namespace('users', description='User login authenfication')
 
 user_create_input = api.model('User', {
     'email': fields.String(required=True, description='The user email'),
@@ -23,7 +23,7 @@ token_parser = api.parser()
 token_parser.add_argument('x-access-token', location='headers', required=True)
 
 
-@api.route('/users/login')
+@api.route('/login')
 class UsersLogin(Resource):
     @api.doc('login_user')
     def get(self):
@@ -36,11 +36,13 @@ class UsersLogin(Resource):
         if check_password_hash(user.password, auth.password):
             token = jwt.encode({'id': user.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)},
                                key)
-            return {'token': token.decode('UTF-8')}
+            user_token = {'token': token.decode('UTF-8'),
+                          'user_id': user.id}
+            return {'token': user_token}
         return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
 
 
-@api.route('/users/')
+@api.route('/')
 class Users(Resource):
     @api.doc('list_of_users')
     @api.expect(token_parser)
@@ -76,7 +78,7 @@ class Users(Resource):
         return {'message': 'New user created!'}
 
 
-@api.route('/users/<id>')
+@api.route('/<id>')
 class UsersID(Resource):
     @api.doc('promote_user')
     @api.expect(token_parser)
