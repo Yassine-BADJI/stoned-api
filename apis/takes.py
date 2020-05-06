@@ -13,7 +13,7 @@ take_input = api.model('Take', {
     'adress': fields.String(required=True, description='The adress of this take'),
     'latitude': fields.String(required=True, description='The latitude position'),
     'longitude': fields.String(required=True, description='The longitude position'),
-    'drug_id': fields.String(required=True, description='The drug id of the take'),
+    'drug_id': fields.Integer(required=True, description='The drug id of the take'),
 })
 
 token_parser = api.parser()
