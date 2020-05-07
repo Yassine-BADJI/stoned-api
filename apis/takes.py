@@ -2,7 +2,7 @@ from flask import request
 from flask_restplus import Namespace, fields, Resource
 
 from apis.comun import token_required
-from model import Takes, db
+from model import Takes, db, Drugs
 
 api = Namespace('takes', description='Takes path')
 
@@ -29,6 +29,7 @@ class TakesByID(Resource):
         take = Takes.query.filter_by(id=id).first()
         if not take:
             return {'message': 'No take found!'}
+        drug = Drugs.query.filter_by(id=take.drug_id).first()
         take_data = {'id': take.id,
                      'date': take.date,
                      'quantity': take.quantity,
@@ -37,6 +38,7 @@ class TakesByID(Resource):
                      'latitude': take.latitude,
                      'longitude': take.longitude,
                      'drug_id': take.drug_id,
+                     'drug_name': drug.name,
                      'user_id': take.user_id}
         return {'take': take_data}
 
@@ -52,6 +54,7 @@ class TakeById(Resource):
             return {'message': 'No take found for this user!'}
         output = []
         for take in takes:
+            drug = Drugs.query.filter_by(id=take.drug_id).first()
             take_data = {'id': take.id,
                          'date': take.date,
                          'quantity': take.quantity,
@@ -60,6 +63,7 @@ class TakeById(Resource):
                          'latitude': take.latitude,
                          'longitude': take.longitude,
                          'drug_id': take.drug_id,
+                         'drug_name': drug.name,
                          'user_id': take.user_id}
             output.append(take_data)
         return {'takes': output}
