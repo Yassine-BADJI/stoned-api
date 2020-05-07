@@ -44,6 +44,7 @@ class DrugsDisplay(Resource):
         drug = Drugs.query.filter_by(id=id).first()
         if not drug:
             return {'message': 'No drug found!'}
+        type = Types.query.filter_by(id=drug.type_id).first()
         drug_data = {'id': drug.id,
                      'name': drug.name,
                      'summary': drug.summary,
@@ -56,7 +57,8 @@ class DrugsDisplay(Resource):
                      'addiction': drug.addiction,
                      'risk_reduction_tips': drug.risk_reduction_tips,
                      'img': drug.img,
-                     'type_id': drug.type_id}
+                     'type_id': drug.type_id,
+                     'type_name': type.name}
         return {'drug': drug_data}
 
 
