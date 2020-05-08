@@ -6,6 +6,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     # SECRET_KEY = os.getenv('SECRET_KEY')
     SECRET_KEY = 'thisissecretkeytest'
+    SENDGRID_KEY = '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'
 
 
 class DevelopmentConfig(Config):
@@ -27,3 +28,4 @@ config_by_name = dict(
 )
 
 key = Config.SECRET_KEY
+sg_key = Config.SENDGRID_KEY

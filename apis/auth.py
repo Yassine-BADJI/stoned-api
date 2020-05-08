@@ -7,6 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from apis.comun import token_required
 from config import key
+from core.auth import add_new_user, check_is_admin, get_a_user, check_is_exist, get_all_users
 from model import User, db
 
 api = Namespace('users', description='User login authenfication')
@@ -48,9 +49,8 @@ class Users(Resource):
     @api.expect(token_parser)
     @token_required
     def get(self, token_parser):
-        # if not token_parser.current_user.admin:
-        #     return {'message': 'You are not allowed to use this method!'}
-        users = User.query.all()
+        # check_is_admin(token_parser)
+        users = get_all_users()
         output = []
         for user in users:
             user_data = {'user_id': user.id,
@@ -65,17 +65,9 @@ class Users(Resource):
     @api.doc('create_user')
     @api.expect(user_create_input)
     def post(self):
-        # if not token_parser.current_user.admin:
-        #     return {'message': 'You are not allowed to use this method!'}
+        # check_is_admin(token_parser)
         data = request.get_json()
-        hashed_password = generate_password_hash(data['password'], method='sha256')
-        new_user = User(email=data['email'],
-                        password=hashed_password,
-                        first_name=data['first_name'],
-                        last_name=data['last_name'],
-                        age=data['age'])
-        db.session.add(new_user)
-        db.session.commit()
+        add_new_user(data)
         return {'message': 'New user created!'}
 
 
@@ -85,11 +77,8 @@ class UsersID(Resource):
     @api.expect(token_parser)
     @token_required
     def get(self, token_parser, id):
-        # if not token_parser.current_user.admin:
-        #     return {'message': 'You are not allowed to use this method!'}
-        user = User.query.filter_by(id=id).first()
-        if not user:
-            return {'message': 'No user found!'}
+        # check_is_admin(token_parser)
+        user = get_a_user(id)
         user_data = {'user_id': user.id,
                      'first_name': user.first_name,
                      'last_name': user.last_name,
@@ -102,11 +91,8 @@ class UsersID(Resource):
     @api.expect(token_parser)
     @token_required
     def put(self, token_parser, id):
-        # if not token_parser.current_user.admin:
-        #     return {'message': 'You are not allowed to use this method!'}
-        user = User.query.filter_by(id=id).first()
-        if not user:
-            return {'message': 'No user found!'}
+        # check_is_admin(token_parser)
+        user = get_a_user(id)
         user.admin = True
         db.session.commit()
         return {'message': 'The user has been promoted!'}
@@ -115,11 +101,8 @@ class UsersID(Resource):
     @api.expect(token_parser)
     @token_required
     def delete(self, token_parser, id):
-        # if not token_parser.current_user.admin:
-        #     return {'message': 'You are not allowed to use this method!'}
-        user = User.query.filter_by(id=id).first()
-        if not user:
-            return {'message': 'No user found!'}
+        # check_is_admin(token_parser)
+        user = get_a_user(id)
         db.session.delete(user)
         db.session.commit()
         return {'message': 'The user has been deleted!'}
