@@ -20,7 +20,7 @@ token_parser = api.parser()
 token_parser.add_argument('x-access-token', location='headers', required=True)
 
 
-@api.route('/<id>')
+@api.route('/<int:id>')
 class TakesByID(Resource):
     @api.doc('list_of_drugs_by_id')
     @api.expect(token_parser)
@@ -43,7 +43,7 @@ class TakesByID(Resource):
         return {'take': take_data}
 
 
-@api.route('/user/<id>')
+@api.route('/user/<int:id>')
 class TakeById(Resource):
     @api.doc('list_take_by_user_id')
     @api.expect(token_parser)

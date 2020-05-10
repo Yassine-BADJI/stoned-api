@@ -12,6 +12,7 @@ from model import User, db
 
 
 def check_is_admin(user):
+    check_is_exist(user)
     if not user.admin:
         raise BadRequest('You are not allowed to use this method!')
 
@@ -19,6 +20,11 @@ def check_is_admin(user):
 def check_is_exist(user):
     if not user:
         raise BadRequest('No user found!')
+
+
+def check_current_user(current_user, user_id):
+    if current_user.id != user_id:
+        raise BadRequest('You cannot get the user info from someone other than you!')
 
 
 def add_new_user(data):

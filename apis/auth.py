@@ -2,7 +2,7 @@ from flask import request
 from flask_restplus import Namespace, Resource, fields
 
 from apis.comun import token_required
-from core.auth import add_new_user, check_is_admin, get_a_user, get_all_users, user_login
+from core.auth import add_new_user, check_is_admin, get_a_user, get_all_users, user_login, check_current_user
 from model import db
 
 api = Namespace('users', description='User login authenfication')
@@ -49,12 +49,12 @@ class Users(Resource):
         return {'message': 'New user created!'}
 
 
-@api.route('/<id>')
+@api.route('/<int:id>')
 class UsersID(Resource):
     @api.doc(security='apikey')
     @token_required
     def get(self, current_user, id):
-        check_is_admin(self)
+        check_current_user(self, id)
         user = get_a_user(id)
         user_data = {'user_id': user.id,
                      'first_name': user.first_name,

@@ -35,7 +35,7 @@ class DrugsAll(Resource):
         return {'drug': output}
 
 
-@api.route('/<id>')
+@api.route('/<int:id>')
 class DrugsDisplay(Resource):
     @api.doc('get_drugs_by_id')
     @api.expect(token_parser)
@@ -62,7 +62,7 @@ class DrugsDisplay(Resource):
         return {'drug': drug_data}
 
 
-@api.route('/types/<id>')
+@api.route('/types/<int:id>')
 class TypesById(Resource):
     @api.doc('list_drugs_by_types_id')
     @api.expect(token_parser)
