@@ -1,21 +1,18 @@
 from flask_restplus import Namespace, Resource
 
 from apis.comun import token_required
+from core.drugs import get_all_drugs, get_drug_by
 from model import Drugs, Types
 
 api = Namespace('drugs', description='Drugs path')
 
-token_parser = api.parser()
-token_parser.add_argument('x-access-token', location='headers', required=True)
-
 
 @api.route('/')
 class DrugsAll(Resource):
-    @api.doc('list_all_drugs')
-    @api.expect(token_parser)
+    @api.doc(security='apikey')
     @token_required
-    def get(self, token_parser):
-        drugs = Drugs.query.all()
+    def get(self, current_user):
+        drugs = get_all_drugs()
         output = []
         for drug in drugs:
             drug_data = {'id': drug.id,
@@ -37,11 +34,10 @@ class DrugsAll(Resource):
 
 @api.route('/<int:id>')
 class DrugsDisplay(Resource):
-    @api.doc('get_drugs_by_id')
-    @api.expect(token_parser)
+    @api.doc(security='apikey')
     @token_required
-    def get(self, token_parser, id):
-        drug = Drugs.query.filter_by(id=id).first()
+    def get(self, current_user, id):
+        drug = get_drug_by('id', id)
         if not drug:
             return {'message': 'No drug found!'}
         type = Types.query.filter_by(id=drug.type_id).first()
@@ -64,10 +60,9 @@ class DrugsDisplay(Resource):
 
 @api.route('/types/<int:id>')
 class TypesById(Resource):
-    @api.doc('list_drugs_by_types_id')
-    @api.expect(token_parser)
+    @api.doc(security='apikey')
     @token_required
-    def get(self, token_parser, id):
+    def get(self, current_user, id):
         drugs = Drugs.query.filter_by(type_id=id).all()
         output = []
         for drug in drugs:
@@ -92,10 +87,9 @@ class TypesById(Resource):
 
 @api.route('/types/')
 class TypesAll(Resource):
-    @api.doc('list_all_drugs_order_by_type')
-    @api.expect(token_parser)
+    @api.doc(security='apikey')
     @token_required
-    def get(self, token_parser):
+    def get(self, current_user):
         types = Types.query.all()
         output_type = []
         for type in types:
