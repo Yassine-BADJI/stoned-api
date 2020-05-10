@@ -1,5 +1,7 @@
 from flask import request
 from flask_restplus import Namespace, fields, Resource
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import exc
 
 from apis.comun import token_required
 from core.auth import check_current_user
@@ -77,6 +79,10 @@ class TakeById(Resource):
                          longitude=data['longitude'],
                          drug_id=data['drug_id'],
                          user_id=id)
-        db.session.add(new_take)
-        db.session.commit()
-        return {'message': 'New take added!'}
+        try:
+            db.session.add(new_take)
+            db.session.commit()
+            return {'message': 'New take added!'}
+        except IntegrityError as e:
+            db.session.rollback()
+            return{'error': e.__cause__}
