@@ -6,7 +6,6 @@ from apis.comun import token_required
 from core.auth import add_new_user, check_is_admin, get_a_user, get_all_users, user_login
 from model import db
 
-
 api = Namespace('users', description='User login authenfication')
 
 
