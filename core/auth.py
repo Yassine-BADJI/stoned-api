@@ -4,24 +4,21 @@ import jwt
 from flask import request, make_response
 from sendgrid.helpers.mail import Mail
 from werkzeug.exceptions import BadRequest
-from werkzeug.security import check_password_hash
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from config import key
-
 from external_ressource.sendgrid import send_mail
 from model import User, db
-
 
 
 def check_is_admin(user):
     if not user.admin:
         raise BadRequest('You are not allowed to use this method!')
 
+
 def check_is_exist(user):
     if not user:
         raise BadRequest('No user found!')
-
 
 
 def add_new_user(data):
