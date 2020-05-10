@@ -5,7 +5,7 @@ from flask import request
 from jwt import InvalidTokenError
 
 from config import key
-from model import User
+from core.auth import get_a_user
 
 
 def token_required(f):
@@ -18,9 +18,8 @@ def token_required(f):
             return ({'message': 'Token is missing!'}), 401
         try:
             data = jwt.decode(token, key)
-            current_user = User.query.filter_by(id=data['id']).first()
+            current_user = get_a_user(data['user_id'])
         except InvalidTokenError:
             return ({'message': 'Token is invalid!'}), 401
         return f(current_user, *args, **kwargs)
-
     return decorated
