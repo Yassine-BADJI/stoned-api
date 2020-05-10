@@ -14,7 +14,9 @@ def get_all_drugs():
 
 def get_all_drugs_by(search, value):
     kwargs = {search: value}
-    return Drugs.query.filter_by(**kwargs).all()
+    drugs = Drugs.query.filter_by(**kwargs).all()
+    check_if_exist(drugs)
+    return drugs
 
 
 def get_drug_by(search, value):

@@ -2,7 +2,10 @@ from flask import request
 from flask_restplus import Namespace, fields, Resource
 
 from apis.comun import token_required
-from model import Takes, db, Drugs
+from core.auth import check_current_user
+from core.drugs import get_drug_by
+from core.takes import get_takes_by, get_all_takes_by
+from model import Takes, db
 
 api = Namespace('takes', description='Takes path')
 
@@ -16,20 +19,14 @@ take_input = api.model('Take', {
     'drug_id': fields.Integer(required=True, description='The drug id of the take'),
 })
 
-token_parser = api.parser()
-token_parser.add_argument('x-access-token', location='headers', required=True)
-
 
 @api.route('/<int:id>')
 class TakesByID(Resource):
-    @api.doc('list_of_drugs_by_id')
-    @api.expect(token_parser)
+    @api.doc(security='apikey')
     @token_required
-    def get(self, token_parser, id):
-        take = Takes.query.filter_by(id=id).first()
-        if not take:
-            return {'message': 'No take found!'}
-        drug = Drugs.query.filter_by(id=take.drug_id).first()
+    def get(self, current_user, id):
+        take = get_takes_by('id', id)
+        drug = get_drug_by('id', take.drug_id)
         take_data = {'id': take.id,
                      'date': take.date,
                      'quantity': take.quantity,
@@ -45,16 +42,14 @@ class TakesByID(Resource):
 
 @api.route('/user/<int:id>')
 class TakeById(Resource):
-    @api.doc('list_take_by_user_id')
-    @api.expect(token_parser)
+    @api.doc(security='apikey')
     @token_required
-    def get(self, token_parser, id):
-        takes = Takes.query.filter_by(user_id=id).all()
-        if not takes:
-            return {'message': 'No take found for this user!'}
+    def get(self, current_user, id):
+        check_current_user(self, id)
+        takes = get_all_takes_by('user_id', id)
         output = []
         for take in takes:
-            drug = Drugs.query.filter_by(id=take.drug_id).first()
+            drug = get_drug_by('id', take.drug_id)
             take_data = {'id': take.id,
                          'date': take.date,
                          'quantity': take.quantity,
@@ -68,10 +63,11 @@ class TakeById(Resource):
             output.append(take_data)
         return {'takes': output}
 
-    @api.doc('add_new_take_for_user')
-    @api.expect(token_parser, take_input)
+    @api.expect(take_input)
+    @api.doc(security='apikey')
     @token_required
-    def post(self, token_parser, id):
+    def post(self, current_user, id):
+        check_current_user(self, id)
         data = request.get_json()
         new_take = Takes(date=data['date'],
                          quantity=data['quantity'],
