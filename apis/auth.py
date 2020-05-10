@@ -1,12 +1,19 @@
 from flask import request
-from flask_restplus import Namespace, Resource
+from flask_restplus import Namespace, Resource, fields
 
-from apis import user_create_input
 from apis.comun import token_required
 from core.auth import add_new_user, check_is_admin, get_a_user, get_all_users, user_login
 from model import db
 
 api = Namespace('users', description='User login authenfication')
+
+user_create_input = api.model('User', {
+    'email': fields.String(required=True, description='The user email'),
+    'password': fields.String(required=True, description='The user name'),
+    'first_name': fields.String(required=True, description='The user first name'),
+    'last_name': fields.String(required=True, description='The user last name'),
+    'age': fields.String(required=True, description='The user age'),
+})
 
 
 @api.route('/login')
