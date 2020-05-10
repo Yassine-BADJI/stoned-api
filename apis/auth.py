@@ -1,56 +1,28 @@
-import datetime
+from flask import request
+from flask_restplus import Namespace, Resource
 
-import jwt
-from flask import request, make_response
-from flask_restplus import Namespace, fields, Resource
-from werkzeug.security import generate_password_hash, check_password_hash
-
+from apis import user_create_input
 from apis.comun import token_required
-from config import key
-from model import User, db
+from core.auth import add_new_user, check_is_admin, get_a_user, get_all_users, user_login
+from model import db
 
 api = Namespace('users', description='User login authenfication')
-
-user_create_input = api.model('User', {
-    'email': fields.String(required=True, description='The user email'),
-    'password': fields.String(required=True, description='The user name'),
-    'first_name': fields.String(required=True, description='The user first name'),
-    'last_name': fields.String(required=True, description='The user last name'),
-    'age': fields.String(required=True, description='The user age'),
-})
-
-token_parser = api.parser()
-token_parser.add_argument('x-access-token', location='headers', required=True)
 
 
 @api.route('/login')
 class UsersLogin(Resource):
     @api.doc('login_user')
     def get(self):
-        auth = request.authorization
-        if not auth or not auth.username or not auth.password:
-            return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
-        user = User.query.filter_by(email=auth.username).first()
-        if not user:
-            return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
-        if check_password_hash(user.password, auth.password):
-            token = jwt.encode({'id': user.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)},
-                               key)
-            user_token = {'token': token.decode('UTF-8'),
-                          'user_id': user.id}
-            return {'token': user_token}
-        return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
+        return user_login()
 
 
 @api.route('/')
 class Users(Resource):
-    @api.doc('list_of_users')
-    @api.expect(token_parser)
+    @api.doc(security='apikey')
     @token_required
-    def get(self, token_parser):
-        # if not token_parser.current_user.admin:
-        #     return {'message': 'You are not allowed to use this method!'}
-        users = User.query.all()
+    def get(self, current_user):
+        check_is_admin(self)
+        users = get_all_users()
         output = []
         for user in users:
             user_data = {'user_id': user.id,
@@ -65,31 +37,18 @@ class Users(Resource):
     @api.doc('create_user')
     @api.expect(user_create_input)
     def post(self):
-        # if not token_parser.current_user.admin:
-        #     return {'message': 'You are not allowed to use this method!'}
         data = request.get_json()
-        hashed_password = generate_password_hash(data['password'], method='sha256')
-        new_user = User(email=data['email'],
-                        password=hashed_password,
-                        first_name=data['first_name'],
-                        last_name=data['last_name'],
-                        age=data['age'])
-        db.session.add(new_user)
-        db.session.commit()
+        add_new_user(data)
         return {'message': 'New user created!'}
 
 
 @api.route('/<id>')
 class UsersID(Resource):
-    @api.doc('return_one_user')
-    @api.expect(token_parser)
+    @api.doc(security='apikey')
     @token_required
-    def get(self, token_parser, id):
-        # if not token_parser.current_user.admin:
-        #     return {'message': 'You are not allowed to use this method!'}
-        user = User.query.filter_by(id=id).first()
-        if not user:
-            return {'message': 'No user found!'}
+    def get(self, current_user, id):
+        check_is_admin(self)
+        user = get_a_user(id)
         user_data = {'user_id': user.id,
                      'first_name': user.first_name,
                      'last_name': user.last_name,
@@ -98,28 +57,20 @@ class UsersID(Resource):
                      'admin': user.admin}
         return {'user': user_data}
 
-    @api.doc('promote_user')
-    @api.expect(token_parser)
+    @api.doc(security='apikey')
     @token_required
-    def put(self, token_parser, id):
-        # if not token_parser.current_user.admin:
-        #     return {'message': 'You are not allowed to use this method!'}
-        user = User.query.filter_by(id=id).first()
-        if not user:
-            return {'message': 'No user found!'}
+    def put(self, current_user, id):
+        check_is_admin(self)
+        user = get_a_user(id)
         user.admin = True
         db.session.commit()
         return {'message': 'The user has been promoted!'}
 
-    @api.doc('delete_user')
-    @api.expect(token_parser)
+    @api.doc(security='apikey')
     @token_required
-    def delete(self, token_parser, id):
-        # if not token_parser.current_user.admin:
-        #     return {'message': 'You are not allowed to use this method!'}
-        user = User.query.filter_by(id=id).first()
-        if not user:
-            return {'message': 'No user found!'}
+    def delete(self, current_user, id):
+        check_is_admin(self)
+        user = get_a_user(id)
         db.session.delete(user)
         db.session.commit()
         return {'message': 'The user has been deleted!'}
