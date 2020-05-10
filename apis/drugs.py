@@ -1,8 +1,7 @@
 from flask_restplus import Namespace, Resource
 
 from apis.comun import token_required
-from core.drugs import get_all_drugs, get_drug_by
-from model import Drugs, Types
+from core.drugs import get_all_drugs, get_drug_by, get_type_by, get_all_drugs_by, get_all_type
 
 api = Namespace('drugs', description='Drugs path')
 
@@ -38,9 +37,7 @@ class DrugsDisplay(Resource):
     @token_required
     def get(self, current_user, id):
         drug = get_drug_by('id', id)
-        if not drug:
-            return {'message': 'No drug found!'}
-        type = Types.query.filter_by(id=drug.type_id).first()
+        type = get_type_by('id', drug.type_id)
         drug_data = {'id': drug.id,
                      'name': drug.name,
                      'summary': drug.summary,
@@ -63,10 +60,10 @@ class TypesById(Resource):
     @api.doc(security='apikey')
     @token_required
     def get(self, current_user, id):
-        drugs = Drugs.query.filter_by(type_id=id).all()
+        drugs = get_all_drugs_by('type_id', id)
         output = []
         for drug in drugs:
-            type = Types.query.filter_by(id=drug.type_id).first()
+            type = get_type_by('id', drug.type_id)
             drug_data = {'id': drug.id,
                          'name': drug.name,
                          'summary': drug.summary,
@@ -90,10 +87,10 @@ class TypesAll(Resource):
     @api.doc(security='apikey')
     @token_required
     def get(self, current_user):
-        types = Types.query.all()
+        types = get_all_type()
         output_type = []
         for type in types:
-            drugs = Drugs.query.filter_by(type_id=type.id).all()
+            drugs = get_all_drugs_by('type_id', type.id)
             output_drugs = []
             for drug in drugs:
                 drug_data = {'id': drug.id,
