@@ -1,4 +1,4 @@
-from flask_restplus import Api, fields
+from flask_restplus import Api
 
 from .auth import api as ns_auth
 from .drugs import api as ns_drugs
@@ -20,17 +20,7 @@ api = Api(
     authorizations=authorizations
 )
 
-api.add_namespace(ns_cats)
 api.add_namespace(ns_hello)
 api.add_namespace(ns_auth)
 api.add_namespace(ns_drugs)
 api.add_namespace(ns_takes)
-
-
-user_create_input = api.model('User', {
-    'email': fields.String(required=True, description='The user email'),
-    'password': fields.String(required=True, description='The user name'),
-    'first_name': fields.String(required=True, description='The user first name'),
-    'last_name': fields.String(required=True, description='The user last name'),
-    'age': fields.String(required=True, description='The user age'),
-})
